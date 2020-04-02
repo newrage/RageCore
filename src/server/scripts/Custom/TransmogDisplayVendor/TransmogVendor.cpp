@@ -428,7 +428,7 @@ public:
     void OnSave(Player* player) override
     {
         uint32 lowguid = player->GetGUID().GetCounter();
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        auto trans = CharacterDatabase.BeginTransaction();
         trans->PAppend("DELETE FROM `custom_transmogrification` WHERE `Owner` = %u", lowguid);
 
         if (!player->transmogMap.empty())
