@@ -4941,10 +4941,13 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
             {
                 case ITEM_CLASS_WEAPON:
                     dmultiplier = dcost->WeaponSubClassCost[ditemProto->SubClass];
+                    break;
                 case ITEM_CLASS_ARMOR:
                     dmultiplier = dcost->ArmorSubClassCost[ditemProto->SubClass];
+                    break;
                 default:
                     dmultiplier = 0;
+                    break;
             }
 
             uint32 costs = uint32(LostDurability*dmultiplier*double(dQualitymodEntry->Data));
@@ -23575,7 +23578,7 @@ void Player::UpdateVisibleGameobjectsOrSpellClicks()
             auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
             for (auto const& clickPair : clickBounds)
             {
-                if (ConditionContainer const* conds = sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), clickPair.second.spellId))
+                if (sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), clickPair.second.spellId))
                 {
                     obj->BuildValuesUpdateBlockForPlayer(&udata, this);
                     break;
