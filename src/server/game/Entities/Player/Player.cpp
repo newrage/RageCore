@@ -5866,7 +5866,7 @@ void Player::UpdateWeaponSkill(WeaponAttackType attType)
                 break;
             case ITEM_SUBCLASS_WEAPON_FIST:
                 UpdateSkill(SKILL_UNARMED, weapon_skill_gain);
-                /* fallthrough */
+                [[fallthrough]];
             default:
                 UpdateSkill(tmpitem->GetSkill(), weapon_skill_gain);
                 break;
@@ -12205,6 +12205,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
             case EQUIPMENT_SLOT_OFFHAND:
             case EQUIPMENT_SLOT_RANGED:
                 RecalculateRating(CR_ARMOR_PENETRATION);
+                break;
             default:
                 break;
         }
@@ -12373,6 +12374,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                         case EQUIPMENT_SLOT_OFFHAND:
                         case EQUIPMENT_SLOT_RANGED:
                             RecalculateRating(CR_ARMOR_PENETRATION);
+                            break;
                         default:
                             break;
                     }
@@ -12503,6 +12505,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
                     case EQUIPMENT_SLOT_OFFHAND:
                     case EQUIPMENT_SLOT_RANGED:
                         RecalculateRating(CR_ARMOR_PENETRATION);
+                        break;
                     default:
                         break;
                 }
@@ -14270,8 +14273,8 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                             GetName().c_str(), GetGUID().ToString().c_str(), menu->GetGossipMenu().GetMenuId(), creature->GetName().c_str(), creature->GetEntry());
                         canTalk = false;
                     }
+                    [[fallthrough]];
                 }
-                /* fallthrough */
                 case GOSSIP_OPTION_GOSSIP:
                 case GOSSIP_OPTION_SPIRITGUIDE:
                 case GOSSIP_OPTION_INNKEEPER:
@@ -19913,6 +19916,7 @@ void Player::_SaveInventory(CharacterDatabaseTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
                 stmt->setUInt32(0, item->GetGUID().GetCounter());
                 trans->Append(stmt);
+                break;
             case ITEM_UNCHANGED:
                 break;
         }
@@ -25001,6 +25005,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
                     break;
                 case SKILL_RANGE_LEVEL:
                     max = GetMaxSkillValueForLevel();
+                    break;
                 default:
                     break;
             }
