@@ -125,7 +125,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             instance->SetBossState(DATA_EXTINGUISHING_THE_IDOL, DONE);
-            me->DespawnOrUnsummon(5000);
+            me->DespawnOrUnsummon(5s);
         }
 
         void QuestAccept(Player* /*player*/, Quest const* quest) override
@@ -167,7 +167,7 @@ public:
                         events.ScheduleEvent(EVENT_PROGRESS, 120s);
                         break;
                     case EVENT_IDOL_ROOM_SPAWNER:
-                        if (Creature* creature = me->SummonCreature(NPC_IDOL_ROOM_SPAWNER, PosSummonSpawner[urand(0,2)], TEMPSUMMON_TIMED_DESPAWN, 4000))
+                        if (Creature* creature = me->SummonCreature(NPC_IDOL_ROOM_SPAWNER, PosSummonSpawner[urand(0,2)], TEMPSUMMON_TIMED_DESPAWN, 4s))
                             creature->AI()->SetData(0, spawnerCount);
                         if (++spawnerCount < 8)
                             events.ScheduleEvent(EVENT_IDOL_ROOM_SPAWNER, 35s);
