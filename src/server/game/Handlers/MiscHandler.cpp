@@ -268,8 +268,9 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
 
         // check if target's level is in level range
         uint8 lvl = target.GetLevel();
+		/* Remove check so Level 255 shows up in who list
         if (lvl < levelMin || lvl > levelMax)
-            continue;
+            continue;*/
 
         // check if class matches classmask
         uint8 class_ = target.GetClass();
