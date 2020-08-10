@@ -1489,6 +1489,8 @@ void World::LoadConfigSettings(bool reload)
 
     m_int_configs[CONFIG_BIRTHDAY_TIME] = sConfigMgr->GetIntDefault("BirthdayTime", 1222964635);
 
+    m_bool_configs[CONFIG_SET_SHAPASSHASH] = sConfigMgr->GetBoolDefault("SetDeprecatedExternalPasswords", false, true);
+
     m_bool_configs[CONFIG_IP_BASED_ACTION_LOGGING] = sConfigMgr->GetBoolDefault("Allow.IP.Based.Action.Logging", false);
 
     // AHBot
@@ -2074,6 +2076,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Initialize query data...");
     sObjectMgr->InitializeQueriesData(QUERY_DATA_ALL);
+
+    TC_LOG_INFO("server.loading", "Initialize commands...");
+    ChatHandler::InitializeCommandTable();
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
@@ -3059,10 +3064,15 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
 
 void World::UpdateSessions(uint32 diff)
 {
-    ///- Add new sessions
-    WorldSession* sess = nullptr;
-    while (addSessQueue.next(sess))
-        AddSession_ (sess);
+    {
+        TC_METRIC_DETAILED_NO_THRESHOLD_TIMER("world_update_time",
+            TC_METRIC_TAG("type", "Add sessions"),
+            TC_METRIC_TAG("parent_type", "Update sessions"));
+        ///- Add new sessions
+        WorldSession* sess = nullptr;
+        while (addSessQueue.next(sess))
+            AddSession_(sess);
+    }
 
     ///- Then send an update signal to remaining ones
     for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)
@@ -3073,6 +3083,9 @@ void World::UpdateSessions(uint32 diff)
         ///- and remove not active sessions from the list
         WorldSession* pSession = itr->second;
         WorldSessionFilter updater(pSession);
+
+        [[maybe_unused]] uint32 currentSessionId = itr->first;
+        TC_METRIC_DETAILED_TIMER("world_update_sessions_time", TC_METRIC_TAG("account_id", std::to_string(currentSessionId)));
 
         if (!pSession->Update(diff, updater))    // As interval = 0
         {

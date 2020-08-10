@@ -28,6 +28,7 @@
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
+#include "Timer.h"
 #include "TOTP.h"
 #include "Util.h"
 #include <boost/lexical_cast.hpp>
@@ -74,8 +75,9 @@ static_assert(sizeof(sAuthLogonChallenge_C) == (1 + 1 + 2 + 4 + 1 + 1 + 1 + 2 + 
 typedef struct AUTH_LOGON_PROOF_C
 {
     uint8   cmd;
-    uint8   A[32];
-    Trinity::Crypto::SHA1::Digest M1, crc_hash;
+    Trinity::Crypto::SRP6::EphemeralKey A;
+    Trinity::Crypto::SHA1::Digest clientM;
+    Trinity::Crypto::SHA1::Digest crc_hash;
     uint8   number_of_keys;
     uint8   securityFlags;
 } sAuthLogonProof_C;
@@ -114,16 +116,80 @@ static_assert(sizeof(sAuthReconnectProof_C) == (1 + 16 + 20 + 20 + 1));
 
 std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B, 0x21, 0x57, 0xFC, 0x37, 0x3F, 0xB3, 0x69, 0xCD, 0xD2, 0xF1 } };
 
-struct BufferSizes
-{
-    static constexpr size_t SRP_6_V = 0x20;
-    static constexpr size_t SRP_6_S = 0x20;
-};
-
 #define MAX_ACCEPTED_CHALLENGE_SIZE (sizeof(AUTH_LOGON_CHALLENGE_C) + 16)
 
 #define AUTH_LOGON_CHALLENGE_INITIAL_SIZE 4
 #define REALM_LIST_PACKET_SIZE 5
+
+/*static*/ void AuthSession::ServerStartup()
+{
+    TC_LOG_INFO("server.authserver", "Updating password hashes...");
+    uint32 const start = getMSTime();
+    // the auth update query nulls salt/verifier if they cannot be converted
+    // if they are non-null but s/v have been cleared, that means a legacy tool touched our auth DB (otherwise, the core might've done it itself, it used to use those hacks too)
+    QueryResult result = LoginDatabase.Query("SELECT id, sha_pass_hash, IF((salt IS null) AND (verifier IS null), 0, 1) AS shouldWarn FROM account WHERE s != DEFAULT(s) OR v != DEFAULT(v) OR salt IS NULL OR verifier IS NULL");
+    if (!result)
+    {
+        TC_LOG_INFO("server.authserver", ">> No password hashes to update - this took us %u ms to realize", GetMSTimeDiffToNow(start));
+        return;
+    }
+
+    bool const shouldUpdate = sConfigMgr->GetBoolDefault("AllowDeprecatedExternalPasswords", false, true);
+    bool hadWarning = false;
+    uint32 c = 0;
+    LoginDatabaseTransaction tx = LoginDatabase.BeginTransaction();
+    do
+    {
+        uint32 const id = (*result)[0].GetUInt32();
+        auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(
+            HexStrToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>((*result)[1].GetString())
+        );
+
+        if ((*result)[2].GetInt64())
+        {
+            if (!hadWarning)
+            {
+                hadWarning = true;
+                if (shouldUpdate)
+                {
+                    TC_LOG_WARN("server.authserver",
+                        "       ========\n"
+                        "(!) You appear to be using an outdated external account management tool.\n"
+                        "(!!) This is INSECURE, has been deprecated, and will cease to function entirely on September 6, 2020.\n"
+                        "(!) Update your external tool.\n"
+                        "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+                        "       ========");
+                }
+                else
+                {
+                    TC_LOG_ERROR("server.authserver",
+                        "       ========\n"
+                        "(!) You appear to be using an outdated external account management tool.\n"
+                        "(!!) This is INSECURE, and the account(s) in question will not be able to log in.\n"
+                        "(!) Update your external tool.\n"
+                        "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+                        "(!) You can override this behavior by adding \"AllowDeprecatedExternalPasswords = 1\" to your authserver.conf file.\n"
+                        "(!!) Note that this override will cease to function entirely on September 6, 2020.\n"
+                        "       ========");
+                }
+            }
+
+            if (!shouldUpdate)
+                continue;
+        }
+
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+        stmt->setBinary(0, salt);
+        stmt->setBinary(1, verifier);
+        stmt->setUInt32(2, id);
+        tx->Append(stmt);
+
+        ++c;
+    } while (result->NextRow());
+    LoginDatabase.CommitTransaction(tx);
+
+    TC_LOG_INFO("server.authserver", ">> %u password hashes updated in %u ms", c, GetMSTimeDiffToNow(start));
+}
 
 std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
 {
@@ -165,11 +231,7 @@ void AccountInfo::LoadResult(Field* fields)
 }
 
 AuthSession::AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
-_status(STATUS_CHALLENGE), _build(0), _expversion(0)
-{
-    N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
-    g.SetDword(7);
-}
+_status(STATUS_CHALLENGE), _build(0), _expversion(0) { }
 
 void AuthSession::Start()
 {
@@ -355,7 +417,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is not locked to ip", _accountInfo.Login.c_str());
         if (_accountInfo.LockCountry.empty() || _accountInfo.LockCountry == "00")
             TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is not locked to country", _accountInfo.Login.c_str());
-        else if (!_accountInfo.LockCountry.empty() && !_ipCountry.empty())
+        else if (!_ipCountry.empty())
         {
             TC_LOG_DEBUG("server.authserver", "[AuthChallenge] Account '%s' is locked to country: '%s' Player country is '%s'", _accountInfo.Login.c_str(), _accountInfo.LockCountry.c_str(), _ipCountry.c_str());
             if (_ipCountry != _accountInfo.LockCountry)
@@ -405,42 +467,63 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         }
     }
 
-    // Get the password from the account table, upper it, and make the SRP6 calculation
-    std::string rI = fields[10].GetString();
+    if (!fields[10].IsNull())
+    {
+        if (!sConfigMgr->GetBoolDefault("AllowDeprecatedExternalPasswords", false, true))
+        {
+            TC_LOG_ERROR("server.authserver",
+                "       ========\n"
+                "(!) You appear to be using an outdated external account management tool.\n"
+                "(!!) This is INSECURE, and the login attempt from account '%s' was BLOCKED.\n"
+                "(!) Update your external tool.\n"
+                "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+                "(!) You can override this behavior by adding \"AllowDeprecatedExternalPasswords = 1\" to your authserver.conf file.\n"
+                "(!!) Note that this override will cease to function entirely on September 6, 2020.\n"
+                "       ========", _accountInfo.Login.c_str());
 
-    // Don't calculate (v, s) if there are already some in the database
-    std::string databaseV = fields[11].GetString();
-    std::string databaseS = fields[12].GetString();
+            pkt << uint8(WOW_FAIL_UNLOCKABLE_LOCK);
+            SendPacket(pkt);
+            return;
+        }
 
-    TC_LOG_DEBUG("network", "database authentication values: v='%s' s='%s'", databaseV.c_str(), databaseS.c_str());
+        // if this is reached, s/v were reset and we need to recalculate from sha_pass_hash
+        Trinity::Crypto::SHA1::Digest sha_pass_hash;
+        HexStrToByteArray(fields[10].GetString(), sha_pass_hash);
+        auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(sha_pass_hash);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
+        stmt->setBinary(0, salt);
+        stmt->setBinary(1, verifier);
+        stmt->setUInt32(2, _accountInfo.Id);
+        LoginDatabase.Execute(stmt);
 
-    // multiply with 2 since bytes are stored as hexstring
-    if (databaseV.size() != size_t(BufferSizes::SRP_6_V) * 2 || databaseS.size() != size_t(BufferSizes::SRP_6_S) * 2)
-        SetVSFields(rI);
+        TC_LOG_WARN("server.authserver",
+            "       ========\n"
+            "(!) You appear to be using an outdated external account management tool.\n"
+            "(!!) This is INSECURE, has been deprecated, and will cease to function entirely on September 6, 2020.\n"
+            "(!) Update your external tool.\n"
+            "(!!) If no update is available, refer your tool's developer to https://github.com/TrinityCore/TrinityCore/issues/25157.\n"
+            "       ========");
+
+        _srp6.emplace(_accountInfo.Login, salt, verifier);
+    }
     else
     {
-        s.SetHexStr(databaseS.c_str());
-        v.SetHexStr(databaseV.c_str());
+        Trinity::Crypto::SRP6::Salt salt = fields[11].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>();
+        Trinity::Crypto::SRP6::Verifier verifier = fields[12].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>();
+        _srp6.emplace(_accountInfo.Login, salt, verifier);
     }
-
-    b.SetRand(19 * 8);
-    BigNumber gmod = g.ModExp(b, N);
-    B = ((v * 3) + gmod) % N;
-
-    ASSERT(gmod.GetNumBytes() <= 32);
 
     // Fill the response packet with the result
     if (AuthHelper::IsAcceptedClientBuild(_build))
     {
         pkt << uint8(WOW_SUCCESS);
 
-        // B may be calculated < 32B so we force minimal length to 32B
-        pkt.append(B.ToByteArray<32>());      // 32 bytes
+        pkt.append(_srp6->B);
         pkt << uint8(1);
-        pkt.append(g.ToByteArray<1>());
+        pkt.append(_srp6->g);
         pkt << uint8(32);
-        pkt.append(N.ToByteArray<32>());
-        pkt.append(s.ToByteArray<BufferSizes::SRP_6_S>());   // 32 bytes
+        pkt.append(_srp6->N);
+        pkt.append(_srp6->s);
         pkt.append(VersionChallenge.data(), VersionChallenge.size());
         pkt << uint8(securityFlags);            // security flags (0x0...0x04)
 
@@ -490,52 +573,10 @@ bool AuthSession::HandleLogonProof()
         return false;
     }
 
-    // Continue the SRP6 calculation based on data received from the client
-    BigNumber A;
-
-    A.SetBinary(logonProof->A, 32);
-
-    // SRP safeguard: abort if A == 0
-    if ((A % N).IsZero())
-        return false;
-
-    BigNumber u(Trinity::Crypto::SHA1::GetDigestOf(A.ToByteArray<32>(), B.ToByteArray<32>()));
-    BigNumber S = (A * (v.ModExp(u, N))).ModExp(b, N);
-
-    std::array<uint8, 32> t = S.ToByteArray<32>();
-    std::array<uint8, 16> buf;
-    Trinity::Crypto::SHA1::Digest part;
-    std::array<uint8, 40> sessionKey;
-
-    for (size_t i = 0; i < 16; ++i)
-        buf[i] = t[i * 2];
-    part = Trinity::Crypto::SHA1::GetDigestOf(buf);
-    for (size_t i = 0; i < Trinity::Crypto::SHA1::DIGEST_LENGTH; ++i)
-        sessionKey[i * 2] = part[i];
-
-    for (size_t i = 0; i < 16; ++i)
-        buf[i] = t[i * 2 + 1];
-    part = Trinity::Crypto::SHA1::GetDigestOf(buf);
-    for (size_t i = 0; i < Trinity::Crypto::SHA1::DIGEST_LENGTH; ++i)
-        sessionKey[i * 2 + 1] = part[i];
-
-    Trinity::Crypto::SHA1::Digest hash  = Trinity::Crypto::SHA1::GetDigestOf(N.ToByteArray<32>());
-    Trinity::Crypto::SHA1::Digest hash2 = Trinity::Crypto::SHA1::GetDigestOf(g.ToByteArray<1>());
-    std::transform(hash.begin(), hash.end(), hash2.begin(), hash.begin(), std::bit_xor<>()); // hash = H(N) xor H(g)
-
-    Trinity::Crypto::SHA1 sha;
-    sha.UpdateData(hash);
-    sha.UpdateData(Trinity::Crypto::SHA1::GetDigestOf(_accountInfo.Login));
-    sha.UpdateData(s.ToByteArray<BufferSizes::SRP_6_S>());
-    sha.UpdateData(A.ToByteArray<32>());
-    sha.UpdateData(B.ToByteArray<32>());
-    sha.UpdateData(sessionKey);
-    sha.Finalize();
-    Trinity::Crypto::SHA1::Digest M = sha.GetDigest();
-
     // Check if SRP6 results match (password is correct), else send an error
-    if (M == logonProof->M1)
+    if (std::optional<SessionKey> K = _srp6->VerifyChallengeResponse(logonProof->A, logonProof->clientM))
     {
+        _sessionKey = *K;
         // Check auth token
         bool tokenSuccess = false;
         bool sentToken = (logonProof->securityFlags & 0x04);
@@ -562,7 +603,7 @@ bool AuthSession::HandleLogonProof()
             return true;
         }
 
-        if (!VerifyVersion(logonProof->A, sizeof(logonProof->A), logonProof->crc_hash, false))
+        if (!VerifyVersion(logonProof->A.data(), logonProof->A.size(), logonProof->crc_hash, false))
         {
             ByteBuffer packet;
             packet << uint8(AUTH_LOGON_PROOF);
@@ -577,7 +618,7 @@ bool AuthSession::HandleLogonProof()
         // No SQL injection (escaped user name) and IP address as received by socket
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, ByteArrayToHexStr(sessionKey));
+        stmt->setBinary(0, _sessionKey);
         stmt->setString(1, GetRemoteIpAddress().to_string());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _os);
@@ -585,7 +626,7 @@ bool AuthSession::HandleLogonProof()
         LoginDatabase.DirectExecute(stmt);
 
         // Finish SRP6 and send the final result to the client
-        Trinity::Crypto::SHA1::Digest M2 = Trinity::Crypto::SHA1::GetDigestOf(A.ToByteArray<32>(), M, sessionKey);
+        Trinity::Crypto::SHA1::Digest M2 = Trinity::Crypto::SRP6::GetSessionVerifier(logonProof->A, logonProof->clientM, _sessionKey);
 
         ByteBuffer packet;
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
@@ -727,7 +768,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     Field* fields = result->Fetch();
 
     _accountInfo.LoadResult(fields);
-    HexStrToByteArray(fields[9].GetCString(), sessionKey.data());
+    _sessionKey = fields[9].GetBinary<SESSION_KEY_LENGTH>();
     Trinity::Crypto::GetRandomBytes(_reconnectProof);
     _status = STATUS_RECONNECT_PROOF;
 
@@ -755,7 +796,7 @@ bool AuthSession::HandleReconnectProof()
     sha.UpdateData(_accountInfo.Login);
     sha.UpdateData(t1.ToByteArray<16>());
     sha.UpdateData(_reconnectProof);
-    sha.UpdateData(sessionKey);
+    sha.UpdateData(_sessionKey);
     sha.Finalize();
 
     if (sha.GetDigest() == reconnectProof->R2)
@@ -896,33 +937,6 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
     SendPacket(hdr);
 
     _status = STATUS_AUTHED;
-}
-
-// Make the SRP6 calculation from hash in dB
-void AuthSession::SetVSFields(const std::string& rI)
-{
-    s.SetRand(int32(BufferSizes::SRP_6_S) * 8);
-
-    BigNumber I;
-    I.SetHexStr(rI.c_str());
-
-    // In case of leading zeros in the rI hash, restore them
-    std::array<uint8, Trinity::Crypto::SHA1::DIGEST_LENGTH> mDigest = I.ToByteArray<Trinity::Crypto::SHA1::DIGEST_LENGTH>(false);
-
-    Trinity::Crypto::SHA1 sha;
-    sha.UpdateData(s.ToByteArray<BufferSizes::SRP_6_S>());
-    sha.UpdateData(mDigest);
-    sha.Finalize();
-    BigNumber x;
-    x.SetBinary(sha.GetDigest());
-    v = g.ModExp(x, N);
-
-    // No SQL injection (username escaped)
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
-    stmt->setString(0, v.AsHexStr());
-    stmt->setString(1, s.AsHexStr());
-    stmt->setString(2, _accountInfo.Login);
-    LoginDatabase.Execute(stmt);
 }
 
 bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect)

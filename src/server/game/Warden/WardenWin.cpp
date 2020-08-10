@@ -39,7 +39,7 @@ WardenWin::WardenWin() : Warden(), _serverTicks(0) {}
 
 WardenWin::~WardenWin() { }
 
-void WardenWin::Init(WorldSession* session, std::array<uint8, 40> const& K)
+void WardenWin::Init(WorldSession* session, SessionKey const& K)
 {
     _session = session;
     // Generate Warden Key
@@ -52,15 +52,15 @@ void WardenWin::Init(WorldSession* session, std::array<uint8, 40> const& K)
     _inputCrypto.Init(_inputKey);
     _outputCrypto.Init(_outputKey);
     TC_LOG_DEBUG("warden", "Server side warden for client %u initializing...", session->GetAccountId());
-    TC_LOG_DEBUG("warden", "C->S Key: %s", ByteArrayToHexStr(_inputKey, 16).c_str());
-    TC_LOG_DEBUG("warden", "S->C Key: %s", ByteArrayToHexStr(_outputKey, 16).c_str());
-    TC_LOG_DEBUG("warden", "  Seed: %s", ByteArrayToHexStr(_seed, 16).c_str());
+    TC_LOG_DEBUG("warden", "C->S Key: %s", ByteArrayToHexStr(_inputKey).c_str());
+    TC_LOG_DEBUG("warden", "S->C Key: %s", ByteArrayToHexStr(_outputKey).c_str());
+    TC_LOG_DEBUG("warden", "  Seed: %s", ByteArrayToHexStr(_seed).c_str());
     TC_LOG_DEBUG("warden", "Loading Module...");
 
     _module = GetModuleForClient();
 
-    TC_LOG_DEBUG("warden", "Module Key: %s", ByteArrayToHexStr(_module->Key, 16).c_str());
-    TC_LOG_DEBUG("warden", "Module ID: %s", ByteArrayToHexStr(_module->Id, 16).c_str());
+    TC_LOG_DEBUG("warden", "Module Key: %s", ByteArrayToHexStr(_module->Key).c_str());
+    TC_LOG_DEBUG("warden", "Module ID: %s", ByteArrayToHexStr(_module->Id).c_str());
     RequestModule();
 }
 
@@ -391,7 +391,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                     continue;
                 }
 
-                std::vector<uint8> result = rs->Result.ToByteVector();
+                std::vector<uint8> result = rs->Result.ToByteVector(0, false);
                 if (memcmp(buff.contents() + buff.rpos(), result.data(), rd->Length) != 0)
                 {
                     TC_LOG_DEBUG("warden", "RESULT MEM_CHECK fail CheckId %u account Id %u", *itr, _session->GetAccountId());
