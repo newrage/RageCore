@@ -23,8 +23,7 @@ http://rochet2.github.io/Transmogrification
 #include <set>
 #include <vector>
 #include <unordered_map>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
+#include <mutex>
 
 class Creature;
 class Item;
@@ -45,19 +44,18 @@ enum TransmogDisplayVendorSenders
 
 namespace
 {
-    class RWLockable
+    class Lockable
     {
     public:
-        typedef boost::shared_mutex LockType;
-        typedef boost::shared_lock<boost::shared_mutex> ReadGuard;
-        typedef boost::unique_lock<boost::shared_mutex> WriteGuard;
+        typedef std::mutex LockType;
+        typedef std::unique_lock<LockType> Guard;
         LockType& GetLock() { return _lock; }
     private:
         LockType _lock;
     };
 };
 
-class TC_GAME_API SelectionStore : public RWLockable
+class TC_GAME_API SelectionStore : public Lockable
 {
 public:
     struct Selection { uint32 item; uint8 slot; uint32 offset; uint32 quality; };
@@ -65,13 +63,13 @@ public:
 
     void SetSelection(uint32 playerLow, const Selection& selection)
     {
-        WriteGuard guard(GetLock());
+        Guard guard(GetLock());
         hashmap[playerLow] = selection;
     }
 
     bool GetSelection(uint32 playerLow, Selection& returnVal)
     {
-        ReadGuard guard(GetLock());
+        Guard guard(GetLock());
 
         PlayerLowToSelection::iterator it = hashmap.find(playerLow);
         if (it == hashmap.end())
@@ -83,7 +81,7 @@ public:
 
     void RemoveSelection(uint32 playerLow)
     {
-        WriteGuard guard(GetLock());
+        Guard guard(GetLock());
         hashmap.erase(playerLow);
     }
 
