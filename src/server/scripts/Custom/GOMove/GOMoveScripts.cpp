@@ -11,6 +11,7 @@ http://rochet2.github.io/
 #include <sstream>
 #include <string>
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "GameObject.h"
 #include "Language.h"
 #include "Map.h"
@@ -24,6 +25,8 @@ http://rochet2.github.io/
 #include "SpellScript.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+
+using namespace Trinity::ChatCommands;
 
 class GOMove_commandscript : public CommandScript
 {
@@ -65,11 +68,11 @@ public:
         SPAWNSPELL,
     };
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> GOMoveCommandTable =
+        static ChatCommandTable GOMoveCommandTable =
         {
-            { "gomove", rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, false, &GOMove_Command, "" },
+            { "gomove", GOMove_Command, rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, Console::No },
         };
         return GOMoveCommandTable;
     }
