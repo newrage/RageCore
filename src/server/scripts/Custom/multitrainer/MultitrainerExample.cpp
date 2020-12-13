@@ -14,7 +14,7 @@ public:
     {
         MultivendorAI(Creature* creature) : ScriptedAI(creature) {}
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "TrainerTest 33684", GOSSIP_SENDER_MAIN, 33684);
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "TrainerTest 2704", GOSSIP_SENDER_MAIN, 2704);
@@ -22,7 +22,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             player->GetSession()->SendTrainerList(me, action);
