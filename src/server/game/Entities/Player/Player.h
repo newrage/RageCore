@@ -1297,7 +1297,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestTimerFailed(uint32 questId) const;
         void SendCanTakeQuestResponse(QuestFailedReason msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver) const;
-        void SendPushToPartyResponse(Player const* player, uint8 msg) const;
+        void SendPushToPartyResponse(Player const* player, QuestShareMessages msg) const;
         void SendQuestUpdateAddItem(Quest const* quest, uint32 itemIdx, uint16 count) const;
         void SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid, uint32 creatureOrGOIdx, uint16 oldCount, uint16 addCount);
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 oldCount, uint16 addCount);
@@ -1320,7 +1320,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder);
+        bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& holder);
         bool IsLoading() const override;
 
         void Initialize(ObjectGuid::LowType guid);
@@ -1336,11 +1336,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SaveToDB(bool create = false);
         void SaveToDB(CharacterDatabaseTransaction trans, bool create = false);
-        void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction& trans);                    // fast save function for item/money cheating preventing
-        void SaveGoldToDB(CharacterDatabaseTransaction& trans) const;
+        void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans);                    // fast save function for item/money cheating preventing
+        void SaveGoldToDB(CharacterDatabaseTransaction trans) const;
 
-        static void Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction& trans);
-        static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction& trans);
+        static void Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction trans);
+        static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
         static void DeleteOldCharacters();
@@ -1386,8 +1386,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetMailSize() { return m_mail.size();}
         Mail* GetMail(uint32 id);
 
-        PlayerMails::iterator GetMailBegin() { return m_mail.begin();}
-        PlayerMails::iterator GetMailEnd() { return m_mail.end();}
+        PlayerMails const& GetMails() const { return m_mail; }
 
         void SendItemRetrievalMail(uint32 itemEntry, uint32 count); // Item retrieval mails sent by The Postmaster (34337), used in multiple places.
 
@@ -1429,7 +1428,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void LearnDefaultSkill(uint32 skillId, uint16 rank);
         void LearnQuestRewardedSpells();
         void LearnQuestRewardedSpells(Quest const* quest);
-        void LearnSpellHighestRank(uint32 spellid);
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
@@ -1479,6 +1477,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         template <class T>
         void ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell = nullptr) const;
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
+        static bool HasSpellModApplied(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
@@ -1688,7 +1687,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SpawnCorpseBones(bool triggerSave = true);
         Corpse* CreateCorpse();
         void KillPlayer();
-        static void OfflineResurrect(ObjectGuid const& guid, CharacterDatabaseTransaction& trans);
+        static void OfflineResurrect(ObjectGuid const& guid, CharacterDatabaseTransaction trans);
         bool HasCorpse() const { return _corpseLocation.GetMapId() != MAPID_INVALID; }
         WorldLocation GetCorpseLocation() const { return _corpseLocation; }
         uint32 GetResurrectionSpellId();
@@ -2251,23 +2250,23 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
 
-        void _SaveActions(CharacterDatabaseTransaction& trans);
-        void _SaveAuras(CharacterDatabaseTransaction& trans);
-        void _SaveInventory(CharacterDatabaseTransaction& trans);
-        void _SaveMail(CharacterDatabaseTransaction& trans);
-        void _SaveQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveDailyQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveWeeklyQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveMonthlyQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveSeasonalQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveSkills(CharacterDatabaseTransaction& trans);
-        void _SaveSpells(CharacterDatabaseTransaction& trans);
-        void _SaveEquipmentSets(CharacterDatabaseTransaction& trans);
-        void _SaveBGData(CharacterDatabaseTransaction& trans);
-        void _SaveGlyphs(CharacterDatabaseTransaction& trans) const;
-        void _SaveTalents(CharacterDatabaseTransaction& trans);
-        void _SaveStats(CharacterDatabaseTransaction& trans) const;
-        void _SaveInstanceTimeRestrictions(CharacterDatabaseTransaction& trans);
+        void _SaveActions(CharacterDatabaseTransaction trans);
+        void _SaveAuras(CharacterDatabaseTransaction trans);
+        void _SaveInventory(CharacterDatabaseTransaction trans);
+        void _SaveMail(CharacterDatabaseTransaction trans);
+        void _SaveQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveDailyQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveWeeklyQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveMonthlyQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveSeasonalQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveSkills(CharacterDatabaseTransaction trans);
+        void _SaveSpells(CharacterDatabaseTransaction trans);
+        void _SaveEquipmentSets(CharacterDatabaseTransaction trans);
+        void _SaveBGData(CharacterDatabaseTransaction trans);
+        void _SaveGlyphs(CharacterDatabaseTransaction trans) const;
+        void _SaveTalents(CharacterDatabaseTransaction trans);
+        void _SaveStats(CharacterDatabaseTransaction trans) const;
+        void _SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -2434,7 +2433,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanStoreItem_InBag(uint8 bag, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, bool non_specialized, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         InventoryResult CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         Item* _StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool update);
-        Item* _LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields);
+        Item* _LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint32 timeDiff, Field* fields);
 
         CinematicMgr* _cinematicMgr;
 

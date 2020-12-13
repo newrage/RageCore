@@ -428,9 +428,11 @@ struct TC_GAME_API InstanceSpawnGroupInfo
     enum
     {
         FLAG_ACTIVATE_SPAWN = 0x01,
-        FLAG_BLOCK_SPAWN = 0x02,
+        FLAG_BLOCK_SPAWN    = 0x02,
+        FLAG_ALLIANCE_ONLY  = 0x04,
+        FLAG_HORDE_ONLY     = 0x08,
 
-        FLAG_ALL = (FLAG_ACTIVATE_SPAWN | FLAG_BLOCK_SPAWN)
+        FLAG_ALL = (FLAG_ACTIVATE_SPAWN | FLAG_BLOCK_SPAWN | FLAG_ALLIANCE_ONLY | FLAG_HORDE_ONLY)
     };
     uint8 BossStateId;
     uint8 BossStates;
@@ -1468,12 +1470,12 @@ class TC_GAME_API ObjectMgr
 
         // reserved names
         void LoadReservedPlayersNames();
-        bool IsReservedName(std::string const& name) const;
+        bool IsReservedName(std::string_view name) const;
 
         // name with valid structure and symbols
-        static ResponseCodes CheckPlayerName(std::string const& name, LocaleConstant locale, bool create = false);
-        static PetNameInvalidReason CheckPetName(std::string const& name, LocaleConstant locale);
-        static bool IsValidCharterName(std::string const& name);
+        static ResponseCodes CheckPlayerName(std::string_view name, LocaleConstant locale, bool create = false);
+        static PetNameInvalidReason CheckPetName(std::string_view name, LocaleConstant locale);
+        static bool IsValidCharterName(std::string_view name);
 
         static bool CheckDeclinedNames(const std::wstring& w_ownname, DeclinedName const& names);
 
@@ -1483,13 +1485,14 @@ class TC_GAME_API ObjectMgr
             if (itr == _gameTeleStore.end()) return nullptr;
             return &itr->second;
         }
-        GameTele const* GetGameTele(std::string const& name) const;
-        GameTele const* GetGameTeleExactName(std::string const& name) const;
+        GameTele const* GetGameTele(std::string_view name) const;
+        GameTele const* GetGameTeleExactName(std::string_view name) const;
         GameTeleContainer const& GetGameTeleMap() const { return _gameTeleStore; }
         bool AddGameTele(GameTele& data);
-        bool DeleteGameTele(std::string const& name);
+        bool DeleteGameTele(std::string_view name);
 
         Trainer::Trainer const* GetTrainer(uint32 creatureId) const;
+        std::vector<Trainer::Trainer const*> const& GetClassTrainers(uint8 classId) const { return _classTrainers.at(classId); }
 
         VendorItemData const* GetNpcVendorItemList(uint32 entry) const
         {
@@ -1727,6 +1730,7 @@ class TC_GAME_API ObjectMgr
 
         CacheVendorItemContainer _cacheVendorItemStore;
         std::unordered_map<uint32, Trainer::Trainer> _trainers;
+        std::unordered_map<uint8, std::vector<Trainer::Trainer const*>> _classTrainers;
         std::unordered_map<uint32, Trainer::Trainer const*> _creatureDefaultTrainers;
 
         std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
