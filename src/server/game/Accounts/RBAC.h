@@ -744,6 +744,26 @@ enum RBACPermissions
     // 878-879 previously used, do not reuse
     RBAC_PERM_COMMAND_PDUMP_COPY                             = 880,
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE                = 881,
+	// custom ranks permissions 912-949
+	//RBAC_ROLE_SEC_ADMINISTRATOR                              = 931,
+	//RBAC_ROLE_SEC_COOWNER                                    = 932,
+	//RBAC_ROLE_SEC_HEADADMIN                                  = 933,
+    //RBAC_ROLE_SEC_ADMIN                                      = 934,
+	//RBAC_ROLE_SEC_JRADMIN                                    = 935,
+	//RBAC_ROLE_SEC_HEADDEVS                                   = 936,
+    //RBAC_ROLE_SEC_DEVS                                       = 937,
+	//RBAC_ROLE_SEC_GAMEMASTER                                 = 938,
+	//RBAC_ROLE_SEC_GM                                         = 939,
+	//RBAC_ROLE_SEC_MODERATOR                                  = 940,
+	//RBAC_ROLE_SEC_TrialGM                                    = 941,
+	//RBAC_ROLE_SEC_DONATOR                                    = 942,
+	//RBAC_ROLE_SEC_VIP4                                       = 943,// reserved
+	//RBAC_ROLE_SEC_VIP3                                       = 944,// reserved
+	//RBAC_ROLE_SEC_VIP2                                       = 945,// reserved
+	//RBAC_ROLE_SEC_VIP1                                       = 946,
+	//RBAC_ROLE_SEC_Fulltester                                 = 947,
+	//RBAC_ROLE_SEC_Tester                                     = 948,
+    //RBAC_ROLE_SEC_PLAYER                                     = 949,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //
