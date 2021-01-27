@@ -22,10 +22,6 @@ Comment: Npc Bot related commands by Trickerer (onlysuffering@gmail.com)
 Category: commandscripts/custom/
 */
 
-#define ADMIN_COMMANDS rbac::RBACPermissions(196)
-#define GM_COMMANDS rbac::RBACPermissions(197)
-#define PLAYER_COMMANDS rbac::RBACPermissions(199)
-
 using namespace Trinity::ChatCommands;
 
 class script_bot_commands : public CommandScript
@@ -54,90 +50,90 @@ public:
     {
         //static std::vector<ChatCommand> npcbotToggleCommandTable =
         //{
-        //    { "flags",      GM_COMMANDS,            false, &HandleNpcBotToggleFlagsCommand,         "" },
+        //    { "flags",                   rbac::RBAC_PERM_COMMAND_NPCBOT_TOGGLE_FLAGS,                  true,  &HandleNpcBotToggleFlagsCommand,              "" },
         //};
 
         static ChatCommandTable npcbotDebugCommandTable =
         {
-            { "raid",       HandleNpcBotDebugRaidCommand,               GM_COMMANDS, Console::No  },
-            { "mount",      HandleNpcBotDebugMountCommand,              GM_COMMANDS, Console::No  },
-            { "spellvisual",HandleNpcBotDebugSpellVisualCommand,        GM_COMMANDS, Console::No  },
-            { "states",     HandleNpcBotDebugStatesCommand,             GM_COMMANDS, Console::No  },
+            { "raid",                   rbac::RBAC_PERM_COMMAND_NPCBOT_DEBUG_RAID,                    true,  &HandleNpcBotDebugRaidCommand,           "" },
+            { "mount",                  rbac::RBAC_PERM_COMMAND_NPCBOT_DEBUG_MOUNT,                   true,  &HandleNpcBotDebugMountCommand,          "" },
+            { "spellvisual",            rbac::RBAC_PERM_COMMAND_NPCBOT_DEBUG_SPELLVISUAL,             true,  &HandleNpcBotDebugSpellVisualCommand,    "" },
+            { "states",                 rbac::RBAC_PERM_COMMAND_NPCBOT_DEBUG_STATES,                  true,  &HandleNpcBotDebugStatesCommand,         "" },
         };
 
         static ChatCommandTable npcbotSetCommandTable =
         {
-            { "faction",    HandleNpcBotSetFactionCommand,              GM_COMMANDS, Console::No  },
-            { "owner",      HandleNpcBotSetOwnerCommand,                GM_COMMANDS, Console::No  },
-            { "spec",       HandleNpcBotSetSpecCommand,                 GM_COMMANDS, Console::No  },
+            { "faction",                rbac::RBAC_PERM_COMMAND_NPCBOT_SET_FACTION,                  true,  &HandleNpcBotSetFactionCommand,           "" },
+            { "owner",                  rbac::RBAC_PERM_COMMAND_NPCBOT_SET_OWNER,                    true,  &HandleNpcBotSetOwnerCommand,             "" },
+            { "spec",                   rbac::RBAC_PERM_COMMAND_NPCBOT_SET_SPEC,                     true,  &HandleNpcBotSetSpecCommand,              "" },
         };
 
         static ChatCommandTable npcbotCommandCommandTable =
         {
-            { "standstill", HandleNpcBotCommandStandstillCommand,   PLAYER_COMMANDS, Console::No  },
-            { "stopfully",  HandleNpcBotCommandStopfullyCommand,    PLAYER_COMMANDS, Console::No  },
-            { "follow",     HandleNpcBotCommandFollowCommand,       PLAYER_COMMANDS, Console::No  },
+            { "standstill",              rbac::RBAC_PERM_COMMAND_NPCBOT_COMMANDS_STANDSTILL,         true,  &HandleNpcBotCommandStandstillCommand,    "" },
+            { "stopfully",               rbac::RBAC_PERM_COMMAND_NPCBOT_COMMANDS_STOPFULLY,          true,  &HandleNpcBotCommandStopfullyCommand,     "" },
+            { "follow",                  rbac::RBAC_PERM_COMMAND_NPCBOT_COMMANDS_FOLLOW,             true,  &HandleNpcBotCommandFollowCommand,        "" },
         };
 
         static ChatCommandTable npcbotAttackDistanceCommandTable =
         {
-            { "short",      HandleNpcBotAttackDistanceShortCommand, PLAYER_COMMANDS, Console::No  },
-            { "long",       HandleNpcBotAttackDistanceLongCommand,  PLAYER_COMMANDS, Console::No  },
-            { "",           HandleNpcBotAttackDistanceExactCommand, PLAYER_COMMANDS, Console::No  },
+            { "short",                   rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_SHORT,              true,  &HandleNpcBotAttackDistanceShortCommand,  "" },
+            { "long",                    rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_LONG,               true,  &HandleNpcBotAttackDistanceLongCommand,   "" },
+            { "exact",                   rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_EXACT,              true,  &HandleNpcBotAttackDistanceExactCommand,  "" },
         };
 
         static ChatCommandTable npcbotDistanceCommandTable =
         {
-            { "attack",     npcbotAttackDistanceCommandTable                                      },
-            { "",           HandleNpcBotFollowDistanceCommand,      PLAYER_COMMANDS, Console::No  },
+            { "attack",                  rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_ATTACK ,            true,  nullptr,                                  "", npcbotAttackDistanceCommandTable },
+            { "follow",                  rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_FOLLOW,             true,  &HandleNpcBotFollowDistanceCommand,       "" },
         };
 
         static ChatCommandTable npcbotOrderCommandTable =
         {
-            { "cast",       HandleNpcBotOrderCastCommand,           PLAYER_COMMANDS, Console::No  },
+            { "cast",                    rbac::RBAC_PERM_COMMAND_NPCBOT_ORDER_CAST,                  true,  &HandleNpcBotOrderCastCommand,            "" },
         };
 
         static ChatCommandTable npcbotVehicleCommandTable =
         {
-            { "eject",      HandleNpcBotVehicleEjectCommand,        PLAYER_COMMANDS, Console::No  },
+            { "eject",                   rbac::RBAC_PERM_COMMAND_NPCBOT_VEHICLE_EJECT,               true,  &HandleNpcBotVehicleEjectCommand,         "" },
         };
 
         static ChatCommandTable npcbotDumpCommandTable =
         {
-            { "load",      HandleNpcBotDumpLoadCommand,             ADMIN_COMMANDS,  Console::Yes },
-            { "write",     HandleNpcBotDumpWriteCommand,            ADMIN_COMMANDS,  Console::Yes },
+            { "load",                    rbac::RBAC_PERM_COMMAND_NPCBOT_DUMP_LOAD,                   true,  &HandleNpcBotDumpLoadCommand,             "" },
+            { "write",                   rbac::RBAC_PERM_COMMAND_NPCBOT_DUMP_WRITE,                  true,  &HandleNpcBotDumpWriteCommand,            "" },
         };
 
         static ChatCommandTable npcbotCommandTable =
         {
-            //{ "debug",      npcbotDebugCommandTable                                               },
-            //{ "toggle",     npcbotToggleCommandTable                                              },
-            { "set",        npcbotSetCommandTable                                                 },
-            { "add",        HandleNpcBotAddCommand,                     GM_COMMANDS, Console::No  },
-            { "remove",     HandleNpcBotRemoveCommand,                  GM_COMMANDS, Console::No  },
-            { "spawn",      HandleNpcBotSpawnCommand,                   GM_COMMANDS, Console::No  },
-            { "move",       HandleNpcBotMoveCommand,                    GM_COMMANDS, Console::No  },
-            { "delete",     HandleNpcBotDeleteCommand,                  GM_COMMANDS, Console::No  },
-            { "lookup",     HandleNpcBotLookupCommand,                  GM_COMMANDS, Console::No  },
-            { "revive",     HandleNpcBotReviveCommand,                  GM_COMMANDS, Console::No  },
-            { "reloadconfig",HandleNpcBotReloadConfigCommand,           GM_COMMANDS, Console::Yes },
-            { "command",    npcbotCommandCommandTable                                             },
-            { "info",       HandleNpcBotInfoCommand,                PLAYER_COMMANDS, Console::No  },
-            { "hide",       HandleNpcBotHideCommand,                PLAYER_COMMANDS, Console::No  },
-            { "unhide",     HandleNpcBotUnhideCommand,              PLAYER_COMMANDS, Console::No  },
-            { "show",       HandleNpcBotUnhideCommand,              PLAYER_COMMANDS, Console::No  },
-            { "recall",     HandleNpcBotRecallCommand,              PLAYER_COMMANDS, Console::No  },
-            { "kill",       HandleNpcBotKillCommand,                PLAYER_COMMANDS, Console::No  },
-            { "suicide",    HandleNpcBotKillCommand,                PLAYER_COMMANDS, Console::No  },
-            { "distance",   npcbotDistanceCommandTable                                            },
-            { "order",      npcbotOrderCommandTable                                               },
-            { "vehicle",    npcbotVehicleCommandTable                                             },
-            { "dump",       npcbotDumpCommandTable                                                },
+            //{ "debug",                 rbac::RBAC_PERM_COMMAND_NPCBOT_DEBUG,                         true,  nullptr,                                  "", npcbotDebugCommandTable },
+            //{ "toggle",                rbac::RBAC_PERM_COMMAND_NPCBOT_TOGGLE,                        true,  nullptr,                                  "", npcbotToggleCommandTable },
+            { "set",                     rbac::RBAC_PERM_COMMAND_NPCBOT_SET ,                        true,  nullptr,                                  "", npcbotSetCommandTable },
+			{ "command",                 rbac::RBAC_PERM_COMMAND_NPCBOT_COMMAND,                     true,  nullptr,                                  "", npcbotCommandCommandTable },
+			{ "distance",                rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE,                    true,  nullptr,                                  "", npcbotDistanceCommandTable },
+            { "order",                   rbac::RBAC_PERM_COMMAND_NPCBOT_ORDER,                       true,  nullptr,                                  "", npcbotOrderCommandTable },
+            { "vehicle",                 rbac::RBAC_PERM_COMMAND_NPCBOT_VEHICLE,                     true,  nullptr,                                  "", npcbotVehicleCommandTable },
+            { "dump",       ,            rbac::RBAC_PERM_COMMAND_NPCBOT_DUMP,                        true,  nullptr,                                  "", npcbotDumpCommandTable },
+            { "add",                     rbac::RBAC_PERM_COMMAND_NPCBOT_ADD,                         true,  &HandleNpcBotAddCommand,                  "" },
+            { "remove",                  rbac::RBAC_PERM_COMMAND_NPCBOT_REMOVE,                      true,  &HandleNpcBotRemoveCommand,               "" },
+            { "spawn",                   rbac::RBAC_PERM_COMMAND_NPCBOT_SPAWN,                       true,  &HandleNpcBotSpawnCommand,                "" },
+            { "move",                    rbac::RBAC_PERM_COMMAND_NPCBOT_MOVE,                        true,  &HandleNpcBotMoveCommand,                 "" },
+            { "delete",                  rbac::RBAC_PERM_COMMAND_NPCBOT_DELETE,                      true,  &HandleNpcBotDeleteCommand,               "" },
+            { "lookup",                  rbac::RBAC_PERM_COMMAND_NPCBOT_LOOKUP,                      true,  &HandleNpcBotLookupCommand,               "" },
+            { "revive",                  rbac::RBAC_PERM_COMMAND_NPCBOT_REVIVE,                      true,  &HandleNpcBotReviveCommand,               "" },
+            { "reloadconfig",            rbac::RBAC_PERM_COMMAND_NPCBOT_RELOADCONFIG,                true,  &HandleNpcBotReloadConfigCommand,         "" },
+            { "info",                    rbac::RBAC_PERM_COMMAND_NPCBOT_INFO,                        true,  &HandleNpcBotInfoCommand,                 "" },
+            { "hide",                    rbac::RBAC_PERM_COMMAND_NPCBOT_HIDE,                        true,  &HandleNpcBotHideCommand,                 "" },
+            { "unhide",                  rbac::RBAC_PERM_COMMAND_NPCBOT_UNHIDE,                      true,  &HandleNpcBotUnhideCommand,               "" },
+            { "show",                    rbac::RBAC_PERM_COMMAND_NPCBOT_SHOW,                        true,  &HandleNpcBotUnhideCommand,               "" },
+            { "recall",                  rbac::RBAC_PERM_COMMAND_NPCBOT_RECALL,                      true,  &HandleNpcBotRecallCommand,               "" },
+            { "kill",                    rbac::RBAC_PERM_COMMAND_NPCBOT_KILL,                        true,  &HandleNpcBotKillCommand,                 "" },
+            { "suicide",                 rbac::RBAC_PERM_COMMAND_NPCBOT_SUICIDE,                     true,  &HandleNpcBotKillCommand,                 "" },
         };
 
         static ChatCommandTable commandTable =
         {
-            { "npcbot",     npcbotCommandTable                                                    },
+            { "npcbot",                  rbac::RBAC_PERM_COMMAND_NPCBOT,                             true,  nullptr,                                  "", npcbotCommandTable },
         };
         return commandTable;
     }
