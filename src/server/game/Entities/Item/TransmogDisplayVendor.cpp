@@ -538,7 +538,7 @@ std::string TransmogDisplayVendorMgr::getItemName(const ItemTemplate * itemTempl
 {
     std::string name = itemTemplate->Name1;
     LocaleConstant loc_idx = session->GetSessionDbLocaleIndex();
-    if (loc_idx >= 0)
+    if (loc_idx != LOCALE_enUS)
         if (ItemLocale const* il = sObjectMgr->GetItemLocale(itemTemplate->ItemId))
             sObjectMgr->GetLocaleString(il->Name, loc_idx, name);
     return name;
