@@ -48,7 +48,7 @@ public:
     public:
         TransmogVendorAI(Creature* creature) : ScriptedAI(creature) {}
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             return OnGossipHello(player, me);
         }
@@ -69,7 +69,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menu_id*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menu_id*/, uint32 gossipListId) override
         {
             uint32 sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
             uint32 action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
