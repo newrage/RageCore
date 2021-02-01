@@ -42,34 +42,24 @@ enum TransmogDisplayVendorSenders
     SENDER_END,
 };
 
-namespace
-{
-    class Lockable
-    {
-    public:
-        typedef std::mutex LockType;
-        typedef std::unique_lock<LockType> Guard;
-        LockType& GetLock() { return _lock; }
-    private:
-        LockType _lock;
-    };
-};
-
-class TC_GAME_API SelectionStore : public Lockable
+class TC_GAME_API SelectionStore
 {
 public:
+    typedef std::mutex LockType;
+    typedef std::unique_lock<LockType> Guard;
+
     struct Selection { uint32 item; uint8 slot; uint32 offset; uint32 quality; };
     typedef std::unordered_map<uint32, Selection> PlayerLowToSelection;
 
     void SetSelection(uint32 playerLow, const Selection& selection)
     {
-        Guard guard(GetLock());
+        Guard guard(_lock);
         hashmap[playerLow] = selection;
     }
 
     bool GetSelection(uint32 playerLow, Selection& returnVal)
     {
-        Guard guard(GetLock());
+        Guard guard(_lock);
 
         PlayerLowToSelection::iterator it = hashmap.find(playerLow);
         if (it == hashmap.end())
@@ -81,12 +71,13 @@ public:
 
     void RemoveSelection(uint32 playerLow)
     {
-        Guard guard(GetLock());
+        Guard guard(_lock);
         hashmap.erase(playerLow);
     }
 
 private:
     PlayerLowToSelection hashmap;
+    LockType _lock;
 };
 
 class TC_GAME_API TransmogDisplayVendorMgr
