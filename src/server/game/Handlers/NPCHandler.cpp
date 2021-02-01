@@ -26,6 +26,7 @@
 #include "GossipDef.h"
 #include "Item.h"
 #include "Log.h"
+#include "MailPackets.h"
 #include "Map.h"
 #include "NPCPackets.h"
 #include "Opcodes.h"
@@ -79,9 +80,9 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 
 void WorldSession::SendShowMailBox(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_SHOW_MAILBOX, 8);
-    data << guid;
-    SendPacket(&data);
+    WorldPackets::Mail::ShowMailbox packet;
+    packet.PostmasterGUID = guid;
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
@@ -164,7 +165,8 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     //    GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    unit->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+    if (uint32 pause = unit->GetMovementTemplate().GetInteractionPauseTimer())
+        unit->PauseMovement(pause);
     unit->SetHomePosition(unit->GetPosition());
 
     // If spiritguide, no need for gossip menu, just put player into resurrect queue
@@ -180,7 +182,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     }
 
     _player->PlayerTalkClass->ClearMenus();
-    if (!unit->AI()->GossipHello(_player))
+    if (!unit->AI()->OnGossipHello(_player))
     {
 //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
         _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);

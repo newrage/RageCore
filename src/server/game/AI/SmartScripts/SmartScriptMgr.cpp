@@ -67,6 +67,8 @@ void SmartWaypointMgr::LoadFromDB()
         float x = fields[2].GetFloat();
         float y = fields[3].GetFloat();
         float z = fields[4].GetFloat();
+        float o = fields[5].GetFloat();
+        uint32 delay = fields[6].GetUInt32();
 
         if (lastEntry != entry)
         {
@@ -81,7 +83,7 @@ void SmartWaypointMgr::LoadFromDB()
 
         WaypointPath& path = _waypointStore[entry];
         path.id = entry;
-        path.nodes.emplace_back(id, x, y, z);
+        path.nodes.emplace_back(id, x, y, z, o, delay);
 
         lastEntry = entry;
         ++total;
@@ -1587,6 +1589,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
             break;
         }
+        case SMART_ACTION_SET_HEALTH_PCT:
+        {
+            if (e.action.setHealthPct.percent > 100 || !e.action.setHealthPct.percent)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is trying to set invalid HP percent %u, skipped.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setHealthPct.percent);
+                return false;
+            }
+            break;
+        }
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -1666,6 +1678,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_PLAY_CINEMATIC:
+        case SMART_ACTION_SET_HOVER:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
