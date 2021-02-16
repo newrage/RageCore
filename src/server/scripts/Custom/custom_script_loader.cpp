@@ -22,7 +22,7 @@
 
 void AddLfgSoloScripts();
 void AddSC_skip_StarterArea();
-// 3
+void AddSC_REFORGER_NPC();
 // 4
 // 5
 // 6
@@ -67,7 +67,7 @@ void AddCustomScripts()
 {
     AddLfgSoloScripts();
     AddSC_skip_StarterArea();
-    // 3
+    AddSC_REFORGER_NPC();
     // TeleNPC2
     AddSC_npc_teleport();
     // 4
