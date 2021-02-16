@@ -785,13 +785,13 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_NPCBOT_DUMP                           = 984, // reserved
 	RBAC_PERM_COMMAND_NPCBOT_DUMP_LOAD                      = 985, // reserved
     RBAC_PERM_COMMAND_NPCBOT_DUMP_WRITE                     = 986, // reserved
-    //RBAC_PERM_COMMAND_NPCBOT_DEBUG                          = 987, // reserved
-    //RBAC_PERM_COMMAND_NPCBOT_DEBUG_RAID                     = 988, // reserved
-	//RBAC_PERM_COMMAND_NPCBOT_DEBUG_MOUNT                    = 989, // reserved
-    //RBAC_PERM_COMMAND_NPCBOT_DEBUG_SPELLVISUAL              = 990, // reserved
-	//RBAC_PERM_COMMAND_NPCBOT_DEBUG_STATES                   = 991, // reserved
-    //RBAC_PERM_COMMAND_NPCBOT_TOGGLE                         = 992, // reserved
-    //RBAC_PERM_COMMAND_NPCBOT_TOGGLE_FLAGS                   = 993, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG                          = 987, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG_RAID                     = 988, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DEBUG_MOUNT                    = 989, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG_SPELLVISUAL              = 990, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DEBUG_STATES                   = 991, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_TOGGLE                         = 992, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_TOGGLE_FLAGS                   = 993, // reserved
 	//RBAC_PERM_COMMAND_NPCBOT_                               = 994, // reserved
 	// custom permissions 1000+
     RBAC_PERM_MAX
