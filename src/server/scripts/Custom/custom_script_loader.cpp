@@ -21,7 +21,7 @@
 // void Add${NameOfDirectory}Scripts()
 
 void AddLfgSoloScripts();
-// 2
+void AddSC_skip_StarterArea();
 // 3
 // 4
 // 5
@@ -64,7 +64,7 @@ void AddSC_CrossfactionBattlegrounds();
 void AddCustomScripts()
 {
     AddLfgSoloScripts();
-    // 2
+    AddSC_skip_StarterArea();
     // 3
     // 4
     // 5
