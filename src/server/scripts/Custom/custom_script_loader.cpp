@@ -32,6 +32,8 @@ void AddSC_CrossfactionBattlegrounds();
 // 10
 // 11
 // 12
+//TeleNPC2
+void AddSC_npc_teleport();
 // 13
 // 14
 // 15
@@ -66,6 +68,8 @@ void AddCustomScripts()
     AddLfgSoloScripts();
     AddSC_skip_StarterArea();
     // 3
+    // TeleNPC2
+    AddSC_npc_teleport();
     // 4
     // 5
     // 6
