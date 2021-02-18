@@ -77,9 +77,9 @@ public:
 
         static ChatCommandTable npcbotAttackDistanceCommandTable =
         {
-            { "short",                   rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_SHORT,              true,  &HandleNpcBotAttackDistanceShortCommand,  "" },
-            { "long",                    rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_LONG,               true,  &HandleNpcBotAttackDistanceLongCommand,   "" },
-            { "exact",                   rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_EXACT,              true,  &HandleNpcBotAttackDistanceExactCommand,  "" },
+            { "short",                   rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_ATTACK_SHORT,       true,  &HandleNpcBotAttackDistanceShortCommand,  "" },
+            { "long",                    rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_ATTACK_LONG,        true,  &HandleNpcBotAttackDistanceLongCommand,   "" },
+            { "exact",                   rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE_ATTACK_EXACT,       true,  &HandleNpcBotAttackDistanceExactCommand,  "" },
         };
 
         static ChatCommandTable npcbotDistanceCommandTable =
@@ -113,7 +113,7 @@ public:
 			{ "distance",                rbac::RBAC_PERM_COMMAND_NPCBOT_DISTANCE,                    true,  nullptr,                                  "", npcbotDistanceCommandTable },
             { "order",                   rbac::RBAC_PERM_COMMAND_NPCBOT_ORDER,                       true,  nullptr,                                  "", npcbotOrderCommandTable },
             { "vehicle",                 rbac::RBAC_PERM_COMMAND_NPCBOT_VEHICLE,                     true,  nullptr,                                  "", npcbotVehicleCommandTable },
-            { "dump",       ,            rbac::RBAC_PERM_COMMAND_NPCBOT_DUMP,                        true,  nullptr,                                  "", npcbotDumpCommandTable },
+            { "dump",                    rbac::RBAC_PERM_COMMAND_NPCBOT_DUMP,                        true,  nullptr,                                  "", npcbotDumpCommandTable },
             { "add",                     rbac::RBAC_PERM_COMMAND_NPCBOT_ADD,                         true,  &HandleNpcBotAddCommand,                  "" },
             { "remove",                  rbac::RBAC_PERM_COMMAND_NPCBOT_REMOVE,                      true,  &HandleNpcBotRemoveCommand,               "" },
             { "spawn",                   rbac::RBAC_PERM_COMMAND_NPCBOT_SPAWN,                       true,  &HandleNpcBotSpawnCommand,                "" },
