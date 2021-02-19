@@ -23,7 +23,7 @@
 void AddLfgSoloScripts();
 void AddSC_skip_StarterArea();
 // 3
-// 4
+void AddSC_Transmogrification();
 // 5
 // 6
 // 7
@@ -70,7 +70,7 @@ void AddCustomScripts()
     // 3
     // TeleNPC2
     AddSC_npc_teleport();
-    // 4
+    AddSC_Transmogrification();
     // 5
     // 6
     // 7
