@@ -747,7 +747,53 @@ enum RBACPermissions
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //
-    // custom permissions 1000+
+    // npcbot custom permissions 950-999
+    RBAC_PERM_COMMAND_NPCBOT                                = 950, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_ADD                            = 951, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_REMOVE                         = 952, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_SPAWN                          = 953, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_MOVE                           = 954, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DELETE                         = 955, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_LOOKUP                         = 956, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_REVIVE                         = 957, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_RELOADCONFIG                   = 958, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_INFO                           = 959, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_HIDE                           = 960, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_UNHIDE                         = 961, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_SHOW                           = 962, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_RECALL                         = 963, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_KILL                           = 964, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_SUICIDE                        = 965, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_SET                            = 966, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_SET_FACTION                    = 967, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_SET_OWNER                      = 968, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_SET_SPEC                       = 969, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_COMMAND                        = 970, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_COMMANDS_STANDSTILL            = 971, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_COMMANDS_STOPFULLY             = 972, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_COMMANDS_FOLLOW                = 973, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DISTANCE                       = 974, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DISTANCE_ATTACK                = 975, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DISTANCE_FOLLOW                = 976, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DISTANCE_ATTACK_SHORT          = 977, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DISTANCE_ATTACK_LONG           = 978, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DISTANCE_ATTACK_EXACT          = 979, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_ORDER                          = 980, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_ORDER_CAST                     = 981, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_VEHICLE                        = 982, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_VEHICLE_EJECT                  = 983, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DUMP                           = 984, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DUMP_LOAD                      = 985, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DUMP_WRITE                     = 986, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG                          = 987, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG_RAID                     = 988, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DEBUG_MOUNT                    = 989, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_DEBUG_SPELLVISUAL              = 990, // reserved
+	RBAC_PERM_COMMAND_NPCBOT_DEBUG_STATES                   = 991, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_TOGGLE                         = 992, // reserved
+    RBAC_PERM_COMMAND_NPCBOT_TOGGLE_FLAGS                   = 993, // reserved
+	//RBAC_PERM_COMMAND_NPCBOT_                               = 994, // reserved
+	// custom permissions 1000+
     RBAC_PERM_MAX
 };
 
