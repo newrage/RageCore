@@ -13379,6 +13379,18 @@ void Player::SwapItem(uint16 src, uint16 dst)
         }
     }
 
+    //static const uint32 REROLL_TOKEN = 239352;
+    if (pSrcItem->GetEntry() == 239352 && pDstItem->GetItemRandomPropertyId() &&
+        IsInventoryPos(src) && IsInventoryPos(dst) && pDstItem->GetCount() == 1 && pSrcItem->GetCount() == 1)
+    {
+        pDstItem->SetItemRandomProperties(GenerateItemRandomPropertyId(pDstItem->GetEntry()));
+        RemoveItem(dstbag, dstslot, false);
+        StoreItem(sDest, pDstItem, true);
+        uint32 count = 1;
+        DestroyItemCount(pSrcItem, count, true);
+        return;
+    }
+
     // now do moves, remove...
     RemoveItem(dstbag, dstslot, false);
     RemoveItem(srcbag, srcslot, false);
