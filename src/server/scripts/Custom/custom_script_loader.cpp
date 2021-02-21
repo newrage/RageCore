@@ -20,6 +20,7 @@ void AddSC_NPC_TransmogDisplayVendor();
 void AddLfgSoloScripts();
 void AddSC_CrossfactionBattlegrounds();
 void AddSC_skip_StarterArea();
+void AddSC_GOMove_commandscript();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -29,4 +30,5 @@ void AddCustomScripts()
     AddLfgSoloScripts();
     AddSC_CrossfactionBattlegrounds();
     AddSC_skip_StarterArea();
+    AddSC_GOMove_commandscript();
 }
