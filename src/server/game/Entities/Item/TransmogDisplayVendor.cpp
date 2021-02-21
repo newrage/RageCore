@@ -34,21 +34,21 @@ http://rochet2.github.io/Transmogrification
 // Edit Transmogrification compatibility in TransmogDisplayVendorConf.h
 
 // A multiplier for the default gold cost (change to 0.0f for no default cost)
-const float TransmogDisplayVendorMgr::ScaledCostModifier = 1.0f;
+const float TransmogDisplayVendorMgr::ScaledCostModifier = 0.0f;
 // Cost added on top of other costs (can be negative)
 const int32 TransmogDisplayVendorMgr::CopperCost = 0;
 // For custom gold cost set ScaledCostModifier to 0.0f and CopperCost to what ever cost you want
 
 const bool TransmogDisplayVendorMgr::RequireToken = true;
-const uint32 TransmogDisplayVendorMgr::TokenEntry = 701035;
-const uint32 TransmogDisplayVendorMgr::TokenAmount = 1;
+const uint32 TransmogDisplayVendorMgr::TokenEntry = 701041;
+const uint32 TransmogDisplayVendorMgr::TokenAmount = 2;
 
 const bool TransmogDisplayVendorMgr::AllowPoor = true;
 const bool TransmogDisplayVendorMgr::AllowCommon = true;
 const bool TransmogDisplayVendorMgr::AllowUncommon = true;
 const bool TransmogDisplayVendorMgr::AllowRare = true;
 const bool TransmogDisplayVendorMgr::AllowEpic = true;
-const bool TransmogDisplayVendorMgr::AllowLegendary = true;
+const bool TransmogDisplayVendorMgr::AllowLegendary = false;
 const bool TransmogDisplayVendorMgr::AllowArtifact = true;
 const bool TransmogDisplayVendorMgr::AllowHeirloom = true;
 
