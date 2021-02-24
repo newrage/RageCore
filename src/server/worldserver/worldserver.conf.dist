@@ -37,6 +37,7 @@
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
+#    CrossFactionBattlegrounds
 #    AUTOBALANCE OPTIONS
 #    SOLO LFG    
 #    NPCBOT CONFIGURATION
@@ -4119,6 +4120,33 @@ Metric.OverallStatusInterval = 1
 
 #Metric.Threshold.world_update_sessions_time = 100
 #Metric.Threshold.worldsession_update_opcode_time = 50
+
+#
+###################################################################################################
+ 
+###################################################################################################
+# CrossFactionBattlegrounds
+#
+#    CrossFactionBattlegrounds.Enable
+#        Description: Enable the module.
+#        Default:     1  - (Enabled)
+#                     0  - (Disabled)
+
+CrossFactionBattlegrounds.Enable = 1
+
+#    CrossFactionBattlegrounds.ReplaceLanguages
+#        Description: Enable or Disabled.
+#        Default:     1  - (Enabled)
+#                     0  - (Disabled)
+
+CrossFactionBattlegrounds.ReplaceLanguages = 1
+
+#    CrossFactionBattlegrounds.ReplaceRacials
+#        Description: Enable or Disabled.
+#        Default:     1  - (Enabled)
+#                     0  - (Disabled)
+
+CrossFactionBattlegrounds.ReplaceRacials = 0
 
 #
 ###################################################################################################
