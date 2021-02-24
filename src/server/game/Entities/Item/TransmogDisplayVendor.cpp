@@ -43,9 +43,9 @@ const bool TransmogDisplayVendorMgr::RequireToken = true;
 const uint32 TransmogDisplayVendorMgr::TokenEntry = 701041;
 const uint32 TransmogDisplayVendorMgr::TokenAmount = 2;
 
-const bool TransmogDisplayVendorMgr::AllowPoor = true;
-const bool TransmogDisplayVendorMgr::AllowCommon = true;
-const bool TransmogDisplayVendorMgr::AllowUncommon = true;
+const bool TransmogDisplayVendorMgr::AllowPoor = false;
+const bool TransmogDisplayVendorMgr::AllowCommon = false;
+const bool TransmogDisplayVendorMgr::AllowUncommon = false;
 const bool TransmogDisplayVendorMgr::AllowRare = true;
 const bool TransmogDisplayVendorMgr::AllowEpic = true;
 const bool TransmogDisplayVendorMgr::AllowLegendary = false;
