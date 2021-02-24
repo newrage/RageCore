@@ -54,8 +54,8 @@ const bool TransmogDisplayVendorMgr::AllowHeirloom = true;
 
 const bool TransmogDisplayVendorMgr::AllowMixedArmorTypes = true;
 const bool TransmogDisplayVendorMgr::AllowMixedWeaponTypes = true;
-const bool TransmogDisplayVendorMgr::AllowMixedInventoryTypes = true;
-const bool TransmogDisplayVendorMgr::AllowFishingPoles = true;
+const bool TransmogDisplayVendorMgr::AllowMixedInventoryTypes = false;
+const bool TransmogDisplayVendorMgr::AllowFishingPoles = false;
 
 const bool TransmogDisplayVendorMgr::IgnoreReqRace = true;
 const bool TransmogDisplayVendorMgr::IgnoreReqClass = true;
@@ -67,7 +67,7 @@ const bool TransmogDisplayVendorMgr::IgnoreReqStats = true;
 
 // Example AllowedItems[] = { 123, 234, 345 };
 const std::set<uint32> TransmogDisplayVendorMgr::AllowedItems = { };
-const std::set<uint32> TransmogDisplayVendorMgr::NotAllowedItems = { };
+const std::set<uint32> TransmogDisplayVendorMgr::NotAllowedItems = { 700100,700101,700102,700103,700104,700105,700106,700107,700108,700109,700110 };
 
 // Config end
 
