@@ -18,7 +18,13 @@
 // This is where scripts' loading functions should be declared:
 
 // The name of this function should match:
+
+void AddSC_item_level80();
+void AddSC_item_level255();
+
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
+	AddSC_item_level80();
+	AddSC_item_level255();
 }
