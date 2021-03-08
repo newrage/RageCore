@@ -37,12 +37,12 @@ public:
             player->GetSession()->SendNotification("You Cant Use This Right Now!");
             return false;
         }
-        if(player->getLevel() == max_lvl)
+        if(player->GetLevel() == max_lvl)
         {
             player->GetSession()->SendNotification("You are already max level.");
             return false;
         }
-        player->SetLevel(player->getLevel() == max_lvl ? max_lvl : player->getLevel() + lvl);
+        player->SetLevel(player->getLevel() == max_lvl ? max_lvl : player->GetLevel() + lvl);
         player->DestroyItemCount(item_id, 1, true);
         player->GetSession()->SendNotification("You have used one level coin.");
         return true;
