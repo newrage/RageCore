@@ -809,10 +809,12 @@ void Player::UpdateDodgePercentage()
     // apply diminishing formula to diminishing dodge chance
     float value = CalculateDiminishingReturns(dodge_cap, GetClass(), nondiminishing, diminishing);
 
-    if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
-         value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
-
-    value = value < 0.0f ? 0.0f : value;
+    //if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
+     //    value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
+//
+    //value = value < 0.0f ? 0.0f : value;
+	if(value > 50)
+		value = 50;
     SetStatFloatValue(PLAYER_DODGE_PERCENTAGE, value);
 }
 

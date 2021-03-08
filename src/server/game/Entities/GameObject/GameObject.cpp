@@ -2056,6 +2056,13 @@ void GameObject::Use(Unit* user)
                 return;
 
             Player* player = user->ToPlayer();
+			
+			if (player->GetRace() == RACE_GOBLIN || player->GetRace() == RACE_WORGEN || player->GetRace() == RACE_FEL_ORC || player->GetRace() == RACE_PANDAH || player->GetRace() == RACE_PANDA || player->GetRace() == RACE_VRYKUL)
+            {
+                player->GetSession()->SendNotification("Race custom can't use the BarberShop.");
+                return;
+
+            }
 
             // fallback, will always work
             player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
